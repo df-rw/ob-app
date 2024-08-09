@@ -136,7 +136,7 @@ index f776624..93f8bc7 100644
 
 We can now include a htmx call in the frontend:
 
-```
+```diff
 index 0efb1a6..1eccf40 100644
 --- a/src/index.md
 +++ b/src/index.md
