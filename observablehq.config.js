@@ -17,10 +17,16 @@ export default {
   // ],
 
   // Content to add to the head of the page, e.g. for a favicon:
-  head: '<link rel="icon" href="observable.png" type="image/png" sizes="32x32"><script src="/js/htmx.min.js"></script>',
+  head: `
+    <link rel="icon" href="observable.png" type="image/png" sizes="32x32">
+    <script src="/js/htmx.min.js"></script>
+    <script>
+    var APPSERVER = '${process.env.APPSERVER ?? ""}';
+    </script>
+  `,
 
   // The path to the source root.
-  root: "docs",
+  root: "src",
 
   // Some additional configuration options and their defaults:
   // theme: "default", // try "light", "dark", "slate", etc.

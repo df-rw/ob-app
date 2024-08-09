@@ -55,8 +55,8 @@ EOF
 Install htmx somewhere Observable Framework can find it:
 
 ```shell
-mkdir ./docs/js
-wget -O ./docs/js/htmx.min.js https://unpkg.com/htmx.org/dist/htmx.min.js
+mkdir ./src/js
+wget -O ./src/js/htmx.min.js https://unpkg.com/htmx.org/dist/htmx.min.js
 ```
 
 Update the page header to include htmx:
@@ -95,7 +95,11 @@ and you should see the current time written to stdout.
 
 # Talking between the frontend and the backend
 
-Requests from the frontend to the backend will be halted due to CORS. Update the server:
+## Handling CORS requests
+
+Requests from the frontend to the backend will be halted due to CORS, as the
+frontend will be making calls to a backend with different port number. Update
+the server:
 
 ```diff
 index f776624..93f8bc7 100644
@@ -134,8 +138,8 @@ We can now include a htmx call in the frontend:
 
 ```
 index 0efb1a6..1eccf40 100644
---- a/docs/index.md
-+++ b/docs/index.md
+--- a/src/index.md
++++ b/src/index.md
 @@ -3,3 +3,10 @@
  This is the home page of your new Observable Framework project.
 
@@ -148,3 +152,119 @@ index 0efb1a6..1eccf40 100644
 +
 +<div id="now"></div>
 ```
+
+# Setting the `hx-get` path
+
+Our development environment uses two servers: one each for front and back.
+
+An example production deploy could involve hosting the Observable Framework
+application inside the backend application, reducing the number of servers to
+one. Since Observable Framework builds to a static site, the frontend would be
+served by the backend application, off a filesystem path as static files.
+
+This makes the `hx-get` path incorrect, since it currently references a local
+development path and not a production one - the hostname of the backend
+application, or a relative path only without a hostname.
+
+One way to set the path at build time is to pass the root URL for the backend
+service to Observable Framework. This can be done through environment variables.
+
+## Passing environment variables to Observable Framework
+
+We can pass an environment variable to Observable Framework when we start
+the Framework server:
+
+```shell
+APPSERVER=http://localhost:8080 npm run dev
+```
+
+We can make this variable availble to pages in the `<head>` section of a page:
+
+```diff
+index 156a78b..c5d9c4a 100644
+--- a/observablehq.config.js
++++ b/observablehq.config.js
+@@ -17,10 +17,16 @@ export default {
+   // ],
+ 
+   // Content to add to the head of the page, e.g. for a favicon:
+-  head: '<link rel="icon" href="observable.png" type="image/png" sizes="32x32"><script src="/js/htmx.min.js"></script>',
++  head: `
++    <link rel="icon" href="observable.png" type="image/png" sizes="32x32">
++    <script src="/js/htmx.min.js"></script>
++    <script>
++    var APPSERVER = '${process.env.APPSERVER ?? ""}';
++    </script>
++  `,
+ 
+   // The path to the source root.
+   root: "src",
+```
+
+We pick this up in a page:
+
+```diff
+index 1eccf40..9ac80f3 100644
+--- a/src/index.md
++++ b/src/index.md
+@@ -4,6 +4,8 @@ This is the home page of your new Observable Framework project.
+ 
+ For more, see <https://observablehq.com/framework/getting-started>.
+ 
++The appserver path is: ${APPSERVER}
++
+ <button
+     hx-get="http://localhost:8080/now"
+     hx-target="#now"
+```
+
+## Replacing the `hx-get` path
+
+It appears that javascript variables aren't expanded inside DOM elements, which
+makes sense, since we are building pages statically. We can get around this
+creating a function that makes our control. And since we are changing the DOM
+on the fly, we need to get htmx to process after the changes are done:
+
+```diff
+index 1eccf40..a37b5a0 100644
+--- a/src/index.md
++++ b/src/index.md
+@@ -4,9 +4,22 @@ This is the home page of your new Observable Framework project.
+ 
+ For more, see <https://observablehq.com/framework/getting-started>.
+ 
+-<button
+-    hx-get="http://localhost:8080/now"
+-    hx-target="#now"
+-    hx-swap="innerHTML">get now</button>
++The appserver path is: ${APPSERVER}
++
++```js
++const makeGetNow = (label) => {
++    return html`<button
++        hx-get="${APPSERVER}/now"
++        hx-target="#now"
++        hx-swap="innerHTML"
++    >${label}</button>`;
++};
++```
++
++```js
++display(makeGetNow("get now"));
++await visibility()
++htmx.process(document.body);
++```
+ 
+ <div id="now"></div>
+```
+
+# TODO
+
+- Write up how production deploy will work:
+  - npm run build
+  - adjust `cmd/web/main.go`
+    - remove cors middleware
+    - mount the static site
+- Try and figure out a better way to handle dynamic htmx element creation:
+  - move the makers to a library
+  - figure out how to group everything so `htmx.process` only has to run once
