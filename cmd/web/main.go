@@ -14,6 +14,14 @@ func now(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "%s", t)
 }
 
+func corsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Headers", "*")
+		next.ServeHTTP(w, r)
+	})
+}
+
 func main() {
 	port := flag.Int("p", 8080, "webserver port")
 	flag.Parse()
@@ -22,6 +30,8 @@ func main() {
 
 	mux.HandleFunc("/now", now)
 
+	corsMux := corsMiddleware(mux)
+
 	fmt.Println("Listening on port", *port)
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", *port), mux))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", *port), corsMux))
 }
