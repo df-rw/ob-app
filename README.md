@@ -1,9 +1,21 @@
 # ob-app
 
-Observable web app:
+A web application tying together
 - [Observable Framework](https://observablehq.com/framework) frontend.
 - [Go](https://go.dev) web server backend.
 - Comms between the front and back through [htmx](https://htmx.org).
+
+tl;dr
+
+```shell
+git clone https://github.com/df-rw/ob-app
+cd ob-app
+npm install
+go run cmd/web/main.go -p 8081              # in one terminal
+APPSERVER=http://localhost:8081 npm run dev # in another terminal
+```
+
+Click click click.
 
 ## Install Observable Framework.
 
