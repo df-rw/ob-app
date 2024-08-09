@@ -23,3 +23,9 @@ go.work.sum
 
 # env file
 .env
+
+# Observable Framework .gitignore.
+.DS_Store
+/dist/
+node_modules/
+yarn-error.log
