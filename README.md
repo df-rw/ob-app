@@ -144,6 +144,8 @@ index f776624..93f8bc7 100644
  }
 ```
 
+Restart the go server if you're playing along at home.
+
 ## Adding htmx to Observable
 
 We can now include a htmx call in the frontend:
@@ -280,3 +282,6 @@ index 1eccf40..a37b5a0 100644
 - Try and figure out a better way to handle dynamic htmx element creation:
   - move the makers to a library
   - figure out how to group everything so `htmx.process` only has to run once
+  - `htmx.process` shouldn't be done on production build; we should bake in the
+    environment variables. Since they will be baked, no need to do any dynamic
+    htmx stuff. Figure this out.
