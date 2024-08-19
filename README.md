@@ -14,7 +14,7 @@ application using:
 git clone https://github.com/df-rw/ob-app
 cd ob-app
 npm install
-go run cmd/web/main.go -p 8082       # Start backend server (in one terminal).
+go run ./cmd/web/main.go -p 8082     # Start backend server (in one terminal).
 npm run dev -- --port 8081 --no-open # Start Observable framework (diff terminal).
 nginx -p . -c ./nginx-dev.conf       # Start nginx (diff terminal).
 ```
@@ -88,4 +88,25 @@ Framework server and the application server:
 
 ## Production deploys
 
-TODO provide simple production deploy
+How the application is deployed to production will differ based on target. At a
+minimum:
+
+- `npm run build` will be needed to build the frontend Observable Framework website. This creates
+  a static site under `./dist`.
+- The backend server application will need to serve the contents of this directory.
+
+As an illustration, the Go application in `./cmd/web/main.go` will serve the
+`./dist` directory. To see how this works:
+
+```shell
+# Stop the development Observable Framework server, the Go backend application
+# and nginx. We don't need them now.
+
+# Then build the Observable Framework application:
+npm run build
+
+# Run the Go application as standalone - use a different port if you like:
+go run ./cmd/web/main.go -p 4321
+
+# Open your client browser to http://localhost:4321. Click click click.
+```

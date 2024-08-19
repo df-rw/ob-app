@@ -30,6 +30,7 @@ func main() {
 
 	mux.HandleFunc("/api/now", now)
 	mux.HandleFunc("/api/then", then)
+	mux.Handle("/", http.FileServer(http.Dir("./dist")))
 
 	fmt.Println("Listening on port", *port)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", *port), mux))
