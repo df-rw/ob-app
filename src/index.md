@@ -1,12 +1,15 @@
 ---
+theme: dashboard
 sql:
     data: ./data/rand-xy.csv
 ---
-# observable app
 
-This is the home page of your new Observable Framework project.
+# Observable app
 
-For more, see <https://observablehq.com/framework/getting-started>.
+This application demonstrates an Observable Framework application that houses a
+Go backend and communicates to it  using HTMX.
+
+## Simple API calls
 
 <!-- a couple of calls to the backend api -->
 <div class="grid grid-cols-2">
@@ -40,7 +43,7 @@ const div2 = FileAttachment("./data/rand-xy-div2.csv").csv({ typed: true })
 
 <!-- and making sure deployment works with plot -->
 ```js
-resize(width =>
+const plot = resize(width =>
   Plot.plot({
     width,
     height: 200,
@@ -71,3 +74,7 @@ resize(width =>
   }),
 )
 ```
+
+<div class="card">
+    ${plot}
+</div>

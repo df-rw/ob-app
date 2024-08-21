@@ -3,33 +3,45 @@ package main
 import (
 	"flag"
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
-	"time"
 )
 
-func now(w http.ResponseWriter, r *http.Request) {
-	t := time.Now()
-	w.Header().Set("Content-type", "text/html")
-	fmt.Fprintf(w, "%s", t)
+type Application struct {
+	tpl *template.Template
 }
 
-func then(w http.ResponseWriter, r *http.Request) {
-	t := time.Now()
-	t = t.Add(10 * time.Minute)
+func New() *Application {
+	tpl := template.Must(template.ParseGlob("templates/*.tmpl"))
 
-	w.Header().Set("Content-type", "text/html")
-	fmt.Fprintf(w, "%s", t)
+	return &Application{tpl}
+}
+
+func (app *Application) render(w http.ResponseWriter, name string, data map[string]any, statusCode int) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.WriteHeader(statusCode)
+	err := app.tpl.ExecuteTemplate(w, name, data)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func main() {
 	port := flag.Int("p", 8082, "webserver port")
 	flag.Parse()
 
+	app := New()
+
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("/api/now", now)
-	mux.HandleFunc("/api/then", then)
+	mux.HandleFunc("/api/now", app.Now)
+	mux.HandleFunc("/api/then", app.Then)
+
+	mux.HandleFunc("GET /api/todos", app.Todos)
+	mux.HandleFunc("POST /api/todos/add", app.TodosAdd)
+	mux.HandleFunc("POST /api/todos/toggle/{id}", app.TodosToggle)
+
 	mux.Handle("/", http.FileServer(http.Dir("./dist")))
 
 	fmt.Println("Listening on port", *port)

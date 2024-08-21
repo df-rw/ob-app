@@ -1,0 +1,43 @@
+{{block "todos" .}}
+    <div id="todolist">
+        <h2>{{.Title}}</h2>
+
+        {{if len .Todos}}
+            <ul>
+                {{range $id, $e := .Todos}}
+                    <li>
+                        <label>
+                            <input type="checkbox" {{if .Done}}checked="checked"{{end}}
+                                   hx-post="/api/todos/toggle/{{$id}}"
+                                   hx-target="#todolist"
+                                   hx-swap="outerHTML"
+                            />
+                            {{if .Done}}
+                                <strike>{{.Name}}</strike>
+                            {{else}}
+                                {{.Name}}
+                            {{end}}
+                        </label>
+                    </li>
+                {{end}}
+            </ul>
+        {{else}}
+            <p>No todos</p>
+        {{end}}
+
+        <div id="todo-new">
+            <form
+                hx-post="/api/todos/add"
+                hx-target="#todolist"
+                hx-swap="outerHTML"
+            >
+                <input type="text" name="name" />
+                <button type="submit">add todo</button>
+            </form>
+        </div>
+
+        {{if .Message}}
+            <p>{{.Message}}
+        {{end}}
+    </div>
+{{end}}
