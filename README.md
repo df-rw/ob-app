@@ -14,7 +14,7 @@ application using:
 git clone https://github.com/df-rw/ob-app
 cd ob-app
 npm install
-go run ./cmd/web/main.go -p 8082     # Start backend server (in one terminal).
+go run ./cmd/web/*.go -p 8082        # Start backend server (in one terminal).
 npm run dev -- --port 8081 --no-open # Start Observable framework (diff terminal).
 nginx -p . -c ./nginx-dev.conf       # Start nginx (diff terminal).
 ```
@@ -23,8 +23,21 @@ Open browser to http://localhost:8080. Click click click.
 
 ## Prerequisites
 
-* Go (`brew install go` or [rtfm](https://go.dev/doc/install))
-* nginx (`brew install nginx` or [rtfm](https://nginx.org/en/docs/install.html))
+- Go (`brew install go` or [rtfm](https://go.dev/doc/install))
+- nginx (`brew install nginx` or [rtfm](https://nginx.org/en/docs/install.html))
+
+## Optional
+
+- [air](https://github.com/air-verse/air) for live-reloading the Go backend
+  application:
+
+```shell
+go install github.com/air-verse/air@latest
+```
+
+Configuration for `air` is in the repo as `./.air.toml`. Replace the `go run
+./cmd/web/*.go -p 8082` line with `air` to get live reloading when a backend
+file changes.
 
 ## Why is nginx in there?
 
@@ -36,8 +49,8 @@ Observable Framework builds a complete static site.
 Writing general purpose applications with Observable Framework on localhost can
 be a little kludgy, as the frontend must be able to make calls to the backend.
 Since the backend server for the application lives outside of Observable
-Framework server, the calls would have to be CORS and the application would need
-to be CORS aware.
+Framework server, the calls would have to be CORS and the application would
+need to be CORS aware.
 
 It's possible to workaround this by passing environment variables to Observable
 Framework's pages that rewrite URLs for backend calls. However this ends up
@@ -72,8 +85,9 @@ Framework server and the application server:
 
 - Frontend is a Observable Framework application.
 - Backend is a Go application, that serves a couple of routes hanging off `/api`/.
-- nginx proxies requests from the client browser off to the appropriate backend based
-  on URL (see [`location`](https://nginx.org/en/docs/http/ngx_http_core_module.html#location)).
+- nginx proxies requests from the client browser off to the appropriate backend
+  based on URL (see
+  [`location`](https://nginx.org/en/docs/http/ngx_http_core_module.html#location)).
 
 ## Notes
 
@@ -81,18 +95,19 @@ Framework server and the application server:
   - `8080` for the nginx proxy;
   - `8081` for the Observable Framework server;
   - `8082` for the backend application.
-- Requests from your client browser should come through `http://localhost:8080`. If nothing seems
-  to be working correctly, check your browser URL and the console to make sure you're using the
-  proxy.
-- If you are only doing work on the front end, of course you don't need to go through the proxy.
+- Requests from your client browser should come through
+  `http://localhost:8080`. If nothing seems to be working correctly, check
+  your browser URL and the console to make sure you're using the proxy.
+- If you are only doing work on the front end, of course you don't need to go
+  through the proxy.
 
 ## Production deploys
 
 How the application is deployed to production will differ based on target. At a
 minimum:
 
-- `npm run build` will be needed to build the frontend Observable Framework website. This creates
-  a static site under `./dist`.
+- `npm run build` will be needed to build the frontend Observable Framework
+  website. This creates a static site under `./dist`.
 - The backend server application will need to serve the contents of this directory.
 
 As an illustration, the Go application in `./cmd/web/main.go` will serve the
@@ -106,13 +121,13 @@ As an illustration, the Go application in `./cmd/web/main.go` will serve the
 npm run build
 
 # Run the Go application as standalone - use a different port if you like:
-go run ./cmd/web/main.go -p 4321
+go run ./cmd/web/* -p 4321
 
 # Open your client browser to http://localhost:4321. Click click click.
 ```
 
-## Notes
+## Todo
 
-- `./.air.toml` is setup for [air](https://github.com/air-verse/air)
-- :thinking-face: possible to make backend changes that force a reload?
-- turned off clean urls for now; this will have to be figured out
+- Clean URLs in Observable Framework are turned off. This is so our sample
+  application deployment is correct. Routing and clean URLs will depend on
+  how the target webserver is setup.
