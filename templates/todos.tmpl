@@ -4,21 +4,8 @@
 
         {{if len .Todos}}
             <ul>
-                {{range $id, $e := .Todos}}
-                    <li>
-                        <label>
-                            <input type="checkbox" {{if .Done}}checked="checked"{{end}}
-                                   hx-post="/api/todos/toggle/{{$id}}"
-                                   hx-target="#todolist"
-                                   hx-swap="outerHTML"
-                            />
-                            {{if .Done}}
-                                <strike>{{.Name}}</strike>
-                            {{else}}
-                                {{.Name}}
-                            {{end}}
-                        </label>
-                    </li>
+                {{range .Todos}}
+                    <li>{{template "todo" .}}</li>
                 {{end}}
             </ul>
         {{else}}
@@ -37,7 +24,22 @@
         </div>
 
         {{if .Message}}
-            <p>{{.Message}}
+            <p id="message">{{.Message}}</p>
         {{end}}
     </div>
+{{end}}
+
+{{block "todo" .}}
+    <label>
+        <input type="checkbox" {{if .Done}}checked="checked"{{end}}
+               hx-post="/api/todos/toggle/{{.ID}}"
+               hx-target="closest label"
+               hx-select-oob="#message"
+        />
+        {{if .Done}}
+            <strike>{{.Name}}</strike>
+        {{else}}
+            {{.Name}}
+        {{end}}
+    </label>
 {{end}}

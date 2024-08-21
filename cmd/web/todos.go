@@ -1,12 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 )
 
 type Todo struct {
+	ID   int
 	Name string
 	Done bool
 }
@@ -35,9 +35,12 @@ func (app *Application) TodosAdd(w http.ResponseWriter, r *http.Request) {
 			Done: false,
 		}
 
-		i := len(todos)
-		if i == 0 {
+		id := len(todos)
+		if id == 0 {
+			newTodo.ID = id
 			todos = make(map[int]Todo)
+		} else {
+			newTodo.ID = id
 		}
 		todos[len(todos)] = newTodo
 
@@ -53,26 +56,20 @@ func (app *Application) TodosAdd(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *Application) TodosToggle(w http.ResponseWriter, r *http.Request) {
-	var message string
+	id, err := strconv.Atoi(r.PathValue("id"))
 
-	if id, err := strconv.Atoi(r.PathValue("id")); err != nil {
-		message = "Malformed request; try again."
-	} else {
-		todo := todos[id]
-		todo.Done = !todo.Done
-		todos[id] = todo
-
-		if todos[id].Done == true {
-			message = fmt.Sprintf("Todo '%s' marked as done.", todo.Name)
-		} else {
-			message = fmt.Sprintf("Todo '%s' marked as todo.", todo.Name)
-		}
+	if err != nil {
+		return
 	}
+
+	todo := todos[id]
+	todo.Done = !todo.Done
+	todos[id] = todo
 
 	pageData := map[string]any{
-		"Title":   "Todo list",
-		"Todos":   todos,
-		"Message": message,
+		"ID":   id,
+		"Name": todo.Name,
+		"Done": todo.Done,
 	}
-	app.render(w, "todos", pageData, http.StatusOK)
+	app.render(w, "todo", pageData, http.StatusOK)
 }
