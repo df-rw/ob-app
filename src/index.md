@@ -1,13 +1,15 @@
 ---
 theme: dashboard
-sql:
-    data: ./data/rand-xy.csv
 ---
+
+```js
+const db = DuckDBClient.of({ data: FileAttachment("./data/rand-xy.csv") });
+```
 
 # Observable app
 
 This application demonstrates an Observable Framework application that houses a
-Go backend and communicates to it  using HTMX.
+Go backend and communicates to it using HTMX.
 
 ## Simple API calls
 
@@ -31,19 +33,17 @@ Go backend and communicates to it  using HTMX.
     </div>
 </div>
 
-<!-- making sure deployment works with sql -->
-```sql id=data
-SELECT * FROM data
-```
-
 <!-- making sure deployment works with file attachments -->
+
 ```js
-const div2 = FileAttachment("./data/rand-xy-div2.csv").csv({ typed: true })
+const data = db.sql`SELECT * FROM data`;
+const div2 = FileAttachment("./data/rand-xy-div2.csv").csv({ typed: true });
 ```
 
 <!-- and making sure deployment works with plot -->
+
 ```js
-const plot = resize(width =>
+const plot = resize((width) =>
   Plot.plot({
     width,
     height: 200,
@@ -61,18 +61,18 @@ const plot = resize(width =>
         ticks: d3.ticks(0, 100, 10),
       }),
       Plot.dot(data, {
-        x: 'x',
-        y: 'y',
+        x: "x",
+        y: "y",
         stroke: "green",
       }),
       Plot.dot(div2, {
-        x: 'x',
-        y: 'y',
+        x: "x",
+        y: "y",
         stroke: "blue",
       }),
     ],
-  }),
-)
+  })
+);
 ```
 
 <div class="card">
