@@ -110,3 +110,8 @@ go run ./cmd/web/main.go -p 4321
 
 # Open your client browser to http://localhost:4321. Click click click.
 ```
+
+## Notes
+
+- `./.air.toml` is setup for [air](https://github.com/air-verse/air)
+- :thinking-face: possible to make backend changes that force a reload?
