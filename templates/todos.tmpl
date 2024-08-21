@@ -35,6 +35,7 @@
                hx-post="/api/todos/toggle/{{.ID}}"
                hx-target="closest label"
                hx-select-oob="#message"
+               hx-swap="outerHTML"
         />
         {{if .Done}}
             <strike>{{.Name}}</strike>
