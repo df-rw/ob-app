@@ -10,6 +10,8 @@ application using:
 
 ## tl;dr
 
+<a name="tldr"></a>
+
 ```shell
 git clone https://github.com/df-rw/ob-app
 cd ob-app
@@ -36,8 +38,8 @@ go install github.com/air-verse/air@latest
 ```
 
 Configuration for `air` is in the repo as `./.air.toml`. Replace the `go run
-./cmd/web/*.go -p 8082` line with `air` to get live reloading when a backend
-file changes.
+./cmd/web/*.go -p 8082` line with `air` (in the [tl;dr](#tldr) above) to get
+live reloading when a backend file changes.
 
 ## Why is nginx in there?
 
