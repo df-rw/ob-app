@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"time"
 )
 
 type Application struct {
@@ -27,6 +28,14 @@ func (app *Application) render(w http.ResponseWriter, name string, data map[stri
 	}
 }
 
+func logger(f http.Handler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		t := time.Now()
+		f.ServeHTTP(w, r)
+		log.Printf("%s %s %v\n", r.Method, r.URL.String(), time.Since(t))
+	}
+}
+
 func main() {
 	port := flag.Int("p", 8082, "webserver port")
 	flag.Parse()
@@ -42,8 +51,6 @@ func main() {
 	mux.HandleFunc("POST /api/todos/add", app.TodosAdd)
 	mux.HandleFunc("POST /api/todos/toggle/{id}", app.TodosToggle)
 
-	mux.Handle("/", http.FileServer(http.Dir("./dist")))
-
 	fmt.Println("Listening on port", *port)
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", *port), mux))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", *port), logger(mux)))
 }

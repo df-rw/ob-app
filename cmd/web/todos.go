@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 )
@@ -16,8 +17,8 @@ var todos map[int]Todo
 
 func (app *Application) Todos(w http.ResponseWriter, r *http.Request) {
 	pageData := map[string]any{
-		"Title": "Todo list",
-		"Todos": todos,
+		"Todos":   todos,
+		"Message": fmt.Sprintf("%d todos.", len(todos)),
 	}
 	app.render(w, "todos", pageData, http.StatusOK)
 }
@@ -48,7 +49,6 @@ func (app *Application) TodosAdd(w http.ResponseWriter, r *http.Request) {
 	}
 
 	pageData := map[string]any{
-		"Title":   "Todo list",
 		"Todos":   todos,
 		"Message": message,
 	}

@@ -64,22 +64,22 @@ We can also potentially end up with the development environment not having the
 same code paths as production due to the environment wrangling, making problem
 tracking more difficult.
 
-nginx is used as a proxy between the client (browser) and both the Observable
-Framework server and the application server:
+In the development environment, nginx is used as a proxy between the client
+(browser) and both the Observable Framework server and the application server:
 
 ```
-|--------|      |-------------|
+----------      ---------------
 | client | ---> | nginx proxy |
-|--------|      |-------------|
-                     |    |
-                     |    |      |--------------------|
+----------      ---------------
+                     |    |      ----------------------
                      |    -----> | application server |
-                     |           |--------------------|
-                     |
-                     |           |-----------------------------|
+                     |           ----------------------
+                     |           -------------------------------
                      ----------> | Observable Framework server |
-                                 |-----------------------------|
+                                 -------------------------------
 ```
+
+Production layout will depend on how you wish to carve up your application.
 
 ## How this all works
 
@@ -91,7 +91,8 @@ Framework server and the application server:
 
 ## Notes
 
-- Check the ports you run your servers on. The defaults, as specified in `nginx.conf` are:
+- Check the ports you run your servers on. The defaults, as specified in
+  `nginx-dev.conf` are:
   - `8080` for the nginx proxy;
   - `8081` for the Observable Framework server;
   - `8082` for the backend application.
@@ -108,22 +109,39 @@ minimum:
 
 - `npm run build` will be needed to build the frontend Observable Framework
   website. This creates a static site under `./dist`.
-- The backend server application will need to serve the contents of this directory.
+- Either:
+  - the backend server application will need to serve the contents of this
+  directory in addition to handling API calls; or
+  - the application is fronted by a proxy which will route client requests.
 
-As an illustration, the Go application in `./cmd/web/main.go` will serve the
-`./dist` directory. To see how this works:
+In this example, we'll front our application with `nginx`. The static site will
+be hosted by `nginx`, and API requests are routed to the backend application:
+
+```
+                             --------------------------------
+                             |  Observable Framework static |
+----------      --------------- site mounted on the proxy   |
+| client | ---> | nginx proxy |------------------------------
+----------      ---------------
+                     |           ----------------------
+                     |---------> | application server |
+                                 ----------------------
+```
+
+This layout is specified in `nginx-prod.conf`. To see this working:
 
 ```shell
-# Stop the development Observable Framework server, the Go backend application
-# and nginx. We don't need them now.
+# Stop the development Observable Framework server and the development nginx
+# server. The application server can keep running.
+# ^C ^C
 
-# Then build the Observable Framework application:
+# Build the Observable Framework application:
 npm run build
 
-# Run the Go application as standalone - use a different port if you like:
-go run ./cmd/web/* -p 4321
+# Run an nginx proxy with the prod configuration:
+nginx -p . -c ./nginx-prod.conf
 
-# Open your client browser to http://localhost:4321. Click click click.
+# Open your client browser to http://localhost:8080. Click click click.
 ```
 
 ## Todo
