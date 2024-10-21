@@ -16,9 +16,9 @@ application using:
 git clone https://github.com/df-rw/ob-app
 cd ob-app
 npm install
-go run ./cmd/web/*.go -p 8082        # Start backend server (in one terminal).
-npm run dev -- --port 8081 --no-open # Start Observable framework (diff terminal).
-nginx -p . -c ./nginx-dev.conf       # Start nginx (diff terminal).
+cd backend && go run ./cmd/web/*.go -p 8082         # Start backend server (in one terminal).
+cd frontend && npm run dev -- --port 8081 --no-open # Start Observable framework (diff terminal).
+nginx -p . -c ./nginx/nginx-dev.conf                # Start nginx (diff terminal).
 ```
 
 Open browser to http://localhost:8080. Click click click.
@@ -37,9 +37,9 @@ Open browser to http://localhost:8080. Click click click.
 go install github.com/air-verse/air@latest
 ```
 
-Configuration for `air` is in the repo as `./.air.toml`. Replace the `go run
-./cmd/web/*.go -p 8082` line with `air` (in the [tl;dr](#tldr) above) to get
-live reloading when a backend file changes.
+Configuration for `air` is in the repo as `./frontend/.air.toml`. Replace the
+`go run ./cmd/web/*.go -p 8082` line with `air` (in the [tl;dr](#tldr) above)
+to get live reloading when a backend file changes.
 
 ## Why is nginx in there?
 
@@ -110,7 +110,8 @@ How the application is deployed to production will differ based on target. At a
 minimum:
 
 - `npm run build` will be needed to build the frontend Observable Framework
-  website. This creates a static site under `./dist`.
+  website. This is run in the `frontend` directory, and creates a static site
+  under `./frontend/dist`.
 - Either:
   - the backend server application will need to serve the contents of this
   directory in addition to handling API calls; or
@@ -138,10 +139,10 @@ This layout is specified in `nginx-prod.conf`. To see this working:
 # ^C ^C
 
 # Build the Observable Framework application:
-npm run build
+cd frontend && npm run build && cd ..
 
 # Run an nginx proxy with the prod configuration:
-nginx -p . -c ./nginx-prod.conf
+nginx -p . -c ./nginx/nginx-prod.conf
 
 # Open your client browser to http://localhost:8080. Click click click.
 ```
